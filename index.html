@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="Fresh Rungis"/>
+  <meta name="theme-color" content="#2D6A4F"/>
+  <title>Fresh Rungis</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥦</text></svg>"/>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --green:#2D6A4F;--green-light:#40916C;--green-bright:#52B788;
+      --green-pale:#D8F3DC;--cream:#FEFAE0;--orange:#E76F51;
+      --dark:#081C15;--gray:#6B7280;--border:rgba(45,106,79,0.15);
+      --red:#DC2626;--red-pale:#FEE2E2;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark)}
+    .bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.05em}
+    .mono{font-family:'DM Mono',monospace}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-thumb{background:var(--green-bright);border-radius:4px}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+    @keyframes slide-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .slide-in{animation:slide-in .25s ease forwards}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1.5px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
+    .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;cursor:pointer;gap:3px}
+    .bnav-item .icon{font-size:22px;line-height:1;transition:transform .2s}
+    .bnav-item .label{font-size:10px;font-weight:600;color:var(--gray)}
+    .bnav-item.active .label{color:var(--green)}
+    .bnav-item.active .icon{transform:scale(1.15)}
+    .card{background:white;border-radius:16px;border:1.5px solid var(--border)}
+    .btn-primary{background:var(--green);color:white;border:none;padding:13px 24px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:background .2s}
+    .btn-primary:hover{background:var(--green-light)}
+    .btn-primary:disabled{background:#ccc;cursor:not-allowed}
+    .btn-ghost{background:transparent;border:1.5px solid var(--border);padding:9px 16px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;color:var(--dark);font-family:'DM Sans',sans-serif;transition:all .2s}
+    .btn-ghost:hover{border-color:var(--green);color:var(--green)}
+    .btn-danger{background:transparent;border:1.5px solid var(--red-pale);padding:7px 11px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;color:var(--red);font-family:'DM Sans',sans-serif}
+    .btn-danger:hover{background:var(--red-pale)}
+    .input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;background:white;color:var(--dark);transition:border-color .2s}
+    .input:focus{border-color:var(--green-bright)}
+    .select{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;background:white;color:var(--dark);cursor:pointer}
+    .qty-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:white;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--dark);flex-shrink:0}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600}
+    .badge-green{background:var(--green-pale);color:var(--green)}
+    .badge-gray{background:#F3F4F6;color:var(--gray)}
+    .badge-red{background:var(--red-pale);color:var(--red)}
+    .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+    .dot-live{background:#22C55E;animation:pulse-dot 1.5s infinite}
+    .dot-pending{background:var(--orange)}
+    .dot-done{background:var(--gray)}
+    .divider{height:1px;background:var(--border);margin:12px 0}
+    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--dark);color:white;padding:12px 22px;border-radius:100px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.2);animation:slide-in .3s ease;white-space:nowrap}
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+    .modal{background:white;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:520px;box-shadow:0 -8px 40px rgba(0,0,0,.15);animation:slide-in .25s ease;max-height:90vh;overflow-y:auto}
+    .toggle{width:44px;height:24px;border-radius:100px;border:none;cursor:pointer;transition:background .2s;position:relative;flex-shrink:0}
+    .toggle::after{content:'';position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:left .2s}
+    .toggle.on{background:var(--green)}
+    .toggle.on::after{left:23px}
+    .toggle.off{background:#D1D5DB}
+    .toggle.off::after{left:3px}
+    .row-item{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:white;gap:8px}
+    label{font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:5px}
+    .cat-pill{padding:7px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--dark);white-space:nowrap;font-family:'DM Sans',sans-serif}
+    .cat-pill.active{background:var(--dark);color:white;border-color:var(--dark)}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const CATALOGUE_INIT = [
+{id:1,  emoji:“🍅”, name:“Tomates grappe”,       unit:“kg”,    price:3.2,  cat:“Légumes”, actif:true},
+{id:2,  emoji:“🍅”, name:“Tomates cerises”,       unit:“barq.”, price:3.8,  cat:“Légumes”, actif:true},
+{id:3,  emoji:“🥦”, name:“Brocolis”,              unit:“pièce”, price:2.1,  cat:“Légumes”, actif:true},
+{id:4,  emoji:“🥕”, name:“Carottes”,              unit:“kg”,    price:1.4,  cat:“Légumes”, actif:true},
+{id:5,  emoji:“🧅”, name:“Oignons jaunes”,        unit:“kg”,    price:1.1,  cat:“Légumes”, actif:true},
+{id:6,  emoji:“🧅”, name:“Oignons rouges”,        unit:“kg”,    price:1.4,  cat:“Légumes”, actif:true},
+{id:7,  emoji:“🧄”, name:“Ail rose de Lautrec”,   unit:“tête”,  price:0.9,  cat:“Légumes”, actif:true},
+{id:8,  emoji:“🥬”, name:“Salade frisée”,         unit:“pièce”, price:1.8,  cat:“Légumes”, actif:true},
+{id:9,  emoji:“🥬”, name:“Mâche”,                 unit:“sachet”,price:2.4,  cat:“Légumes”, actif:true},
+{id:10, emoji:“🥬”, name:“Roquette”,              unit:“sachet”,price:2.2,  cat:“Légumes”, actif:true},
+{id:11, emoji:“🫑”, name:“Poivrons rouges”,       unit:“kg”,    price:4.5,  cat:“Légumes”, actif:true},
+{id:12, emoji:“🫑”, name:“Poivrons verts”,        unit:“kg”,    price:3.8,  cat:“Légumes”, actif:true},
+{id:13, emoji:“🥒”, name:“Concombres”,            unit:“pièce”, price:1.2,  cat:“Légumes”, actif:true},
+{id:14, emoji:“🍆”, name:“Aubergines”,            unit:“kg”,    price:3.0,  cat:“Légumes”, actif:true},
+{id:15, emoji:“🌽”, name:“Courgettes”,            unit:“kg”,    price:2.5,  cat:“Légumes”, actif:true},
+{id:16, emoji:“🥔”, name:“Pommes de terre”,       unit:“kg”,    price:1.0,  cat:“Légumes”, actif:true},
+{id:17, emoji:“🥔”, name:“PDT grenaille”,         unit:“kg”,    price:2.2,  cat:“Légumes”, actif:true},
+{id:18, emoji:“🫛”, name:“Haricots verts fins”,   unit:“kg”,    price:4.8,  cat:“Légumes”, actif:true},
+{id:19, emoji:“🫛”, name:“Petits pois”,           unit:“kg”,    price:3.5,  cat:“Légumes”, actif:true},
+{id:20, emoji:“🍄”, name:“Champignons de Paris”,  unit:“kg”,    price:3.2,  cat:“Légumes”, actif:true},
+{id:21, emoji:“🍄”, name:“Pleurotes”,             unit:“kg”,    price:6.5,  cat:“Légumes”, actif:true},
+{id:22, emoji:“🥗”, name:“Céleri branche”,        unit:“pièce”, price:1.8,  cat:“Légumes”, actif:true},
+{id:23, emoji:“🥗”, name:“Fenouil”,               unit:“pièce”, price:1.6,  cat:“Légumes”, actif:true},
+{id:24, emoji:“🥗”, name:“Poireaux”,              unit:“botte”, price:2.0,  cat:“Légumes”, actif:true},
+{id:25, emoji:“🥗”, name:“Épinards frais”,        unit:“sachet”,price:2.8,  cat:“Légumes”, actif:true},
+{id:26, emoji:“🥗”, name:“Endives”,               unit:“kg”,    price:2.6,  cat:“Légumes”, actif:true},
+{id:27, emoji:“🌽”, name:“Maïs”,                  unit:“épi”,   price:0.8,  cat:“Légumes”, actif:true},
+{id:28, emoji:“🥗”, name:“Betteraves crues”,      unit:“kg”,    price:1.5,  cat:“Légumes”, actif:true},
+{id:29, emoji:“🍋”, name:“Citrons”,               unit:“kg”,    price:2.8,  cat:“Fruits”,  actif:true},
+{id:30, emoji:“🍋”, name:“Citrons verts”,         unit:“kg”,    price:3.5,  cat:“Fruits”,  actif:true},
+{id:31, emoji:“🍊”, name:“Oranges”,               unit:“kg”,    price:2.0,  cat:“Fruits”,  actif:true},
+{id:32, emoji:“🍊”, name:“Clémentines”,           unit:“kg”,    price:2.6,  cat:“Fruits”,  actif:true},
+{id:33, emoji:“🍎”, name:“Pommes Golden”,         unit:“kg”,    price:2.2,  cat:“Fruits”,  actif:true},
+{id:34, emoji:“🍎”, name:“Pommes Pink Lady”,      unit:“kg”,    price:2.9,  cat:“Fruits”,  actif:true},
+{id:35, emoji:“🍐”, name:“Poires Williams”,       unit:“kg”,    price:2.8,  cat:“Fruits”,  actif:true},
+{id:36, emoji:“🍇”, name:“Raisins Italia”,        unit:“kg”,    price:4.2,  cat:“Fruits”,  actif:true},
+{id:37, emoji:“🍇”, name:“Raisins muscat”,        unit:“kg”,    price:4.8,  cat:“Fruits”,  actif:true},
+{id:38, emoji:“🍓”, name:“Fraises Gariguette”,    unit:“barq.”, price:3.9,  cat:“Fruits”,  actif:true},
+{id:39, emoji:“🫐”, name:“Myrtilles”,             unit:“barq.”, price:4.5,  cat:“Fruits”,  actif:true},
+{id:40, emoji:“🍒”, name:“Cerises”,               unit:“kg”,    price:6.8,  cat:“Fruits”,  actif:true},
+{id:41, emoji:“🍑”, name:“Pêches plates”,         unit:“kg”,    price:3.6,  cat:“Fruits”,  actif:true},
+{id:42, emoji:“🍑”, name:“Nectarines”,            unit:“kg”,    price:3.4,  cat:“Fruits”,  actif:true},
+{id:43, emoji:“🥭”, name:“Mangues”,               unit:“pièce”, price:2.5,  cat:“Fruits”,  actif:true},
+{id:44, emoji:“🍍”, name:“Ananas”,                unit:“pièce”, price:3.2,  cat:“Fruits”,  actif:true},
+{id:45, emoji:“🥝”, name:“Kiwis”,                 unit:“kg”,    price:3.1,  cat:“Fruits”,  actif:true},
+{id:46, emoji:“🍌”, name:“Bananes”,               unit:“kg”,    price:1.8,  cat:“Fruits”,  actif:true},
+{id:47, emoji:“🍉”, name:“Pastèque”,              unit:“pièce”, price:5.5,  cat:“Fruits”,  actif:true},
+{id:48, emoji:“🍈”, name:“Melon Charentais”,      unit:“pièce”, price:3.0,  cat:“Fruits”,  actif:true},
+{id:49, emoji:“🥑”, name:“Avocats”,               unit:“pièce”, price:1.2,  cat:“Fruits”,  actif:true},
+{id:50, emoji:“🌿”, name:“Basilic frais”,         unit:“botte”, price:1.5,  cat:“Herbes”,  actif:true},
+{id:51, emoji:“🌱”, name:“Coriandre”,             unit:“botte”, price:1.2,  cat:“Herbes”,  actif:true},
+{id:52, emoji:“🌿”, name:“Persil plat”,           unit:“botte”, price:1.0,  cat:“Herbes”,  actif:true},
+{id:53, emoji:“🌿”, name:“Persil frisé”,          unit:“botte”, price:1.0,  cat:“Herbes”,  actif:true},
+{id:54, emoji:“🌿”, name:“Thym frais”,            unit:“botte”, price:1.3,  cat:“Herbes”,  actif:true},
+{id:55, emoji:“🌿”, name:“Romarin”,               unit:“botte”, price:1.3,  cat:“Herbes”,  actif:true},
+{id:56, emoji:“🌿”, name:“Menthe fraîche”,        unit:“botte”, price:1.2,  cat:“Herbes”,  actif:true},
+{id:57, emoji:“🌿”, name:“Estragon”,              unit:“botte”, price:1.5,  cat:“Herbes”,  actif:true},
+{id:58, emoji:“🌿”, name:“Cerfeuil”,              unit:“botte”, price:1.4,  cat:“Herbes”,  actif:true},
+{id:59, emoji:“🌿”, name:“Ciboulette”,            unit:“botte”, price:1.2,  cat:“Herbes”,  actif:true},
+{id:60, emoji:“🌿”, name:“Laurier frais”,         unit:“botte”, price:1.5,  cat:“Herbes”,  actif:true},
+{id:61, emoji:“🌿”, name:“Sauge fraîche”,         unit:“botte”, price:1.4,  cat:“Herbes”,  actif:true},
+];
+
+const CLIENTS_INIT = [
+{id:1, name:“Le Bistrot de la Tour”, contact:“Marc D.”,   fondateur:true,  actif:true},
+{id:2, name:“Brasserie Puteaux”,     contact:“Sophie L.”, fondateur:true,  actif:true},
+{id:3, name:“L’Atelier Gourmand”,   contact:“Pierre M.”, fondateur:true,  actif:true},
+{id:4, name:“Resto du Port”,         contact:“Julie R.”,  fondateur:true,  actif:true},
+{id:5, name:“Chez Tonton”,           contact:“Paul B.”,   fondateur:true,  actif:true},
+];
+
+const ORDERS_INIT = [
+{id:“CMD-001”, clientId:1, clientName:“Le Bistrot de la Tour”, date:“2025-03-21”, status:“livré”,    items:[{name:“Tomates grappe”,qty:5,unit:“kg”,price:3.2},{name:“Basilic frais”,qty:3,unit:“botte”,price:1.5}], fondateur:true},
+{id:“CMD-002”, clientId:2, clientName:“Brasserie Puteaux”,     date:“2025-03-22”, status:“en cours”, items:[{name:“Salade frisée”, qty:8,unit:“pièce”,price:1.8},{name:“Carottes”,qty:3,unit:“kg”,price:1.4}],     fondateur:true},
+];
+
+const CATS  = [“Légumes”,“Fruits”,“Herbes”];
+const UNITS = [“kg”,“pièce”,“botte”,“barq.”,“litre”,“sachet”,“tête”,“épi”];
+const EMOJIS= [“🥦”,“🍅”,“🥕”,“🧅”,“🥬”,“🫑”,“🍋”,“🍓”,“🍇”,“🍊”,“🌿”,“🌱”,“🥝”,“🍑”,“🥒”,“🍆”,“🧄”,“🍄”,“🫐”,“🍒”,“🍎”,“🍐”,“🥑”,“🍌”,“🍉”,“🍈”,“🍍”,“🥭”,“🥔”,“🌽”,“🫛”];
+
+function computeTotal(items, fondateur) {
+const sub = items.reduce((s,i) => s + i.qty*i.price, 0);
+return fondateur ? sub*0.95 : sub;
+}
+
+function App() {
+const [view, setView]           = useState(“commande”);
+const [clients, setClients]     = useState(CLIENTS_INIT);
+const [catalogue, setCatalogue] = useState(CATALOGUE_INIT);
+const [orders, setOrders]       = useState(ORDERS_INIT);
+const [toast, setToast]         = useState(null);
+
+const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
+const addOrder  = (o)   => { setOrders(p => [o,…p]); showToast(“✅ Commande envoyée !”); };
+const updStatus = (id,s)=> setOrders(p => p.map(o => o.id===id ? {…o,status:s} : o));
+
+return (
+<div style={{minHeight:“100vh”,background:“var(–cream)”,paddingBottom:72}}>
+<header style={{background:“white”,borderBottom:“1.5px solid var(–border)”,position:“sticky”,top:0,zIndex:100,padding:“0 16px”}}>
+<div style={{maxWidth:860,margin:“0 auto”,display:“flex”,alignItems:“center”,height:56}}>
+<span style={{fontSize:22,marginRight:8}}>🥦</span>
+<div>
+<div className=“bebas” style={{fontSize:18,color:“var(–green)”,lineHeight:1}}>Fresh Rungis</div>
+<div style={{fontSize:9,color:“var(–gray)”,letterSpacing:“0.08em”,textTransform:“uppercase”}}>Puteaux · 6j/7</div>
+</div>
+</div>
+</header>
+<main style={{maxWidth:860,margin:“0 auto”,padding:“20px 14px”}}>
+{view===“commande”  && <CommandeView  clients={clients} catalogue={catalogue} onOrder={addOrder}/>}
+{view===“dashboard” && <DashboardView orders={orders} onUpdateStatus={updStatus}/>}
+{view===“admin”     && <AdminView     clients={clients} setClients={setClients} catalogue={catalogue} setCatalogue={setCatalogue} showToast={showToast}/>}
+</main>
+<nav className="bottom-nav">
+{[[“commande”,“🛒”,“Commander”],[“dashboard”,“📊”,“Dashboard”],[“admin”,“⚙️”,“Admin”]].map(([v,icon,label])=>(
+<div key={v} className={`bnav-item ${view===v?"active":""}`} onClick={()=>setView(v)}>
+<span className="icon">{icon}</span>
+<span className="label">{label}</span>
+</div>
+))}
+</nav>
+{toast && <div className="toast">{toast}</div>}
+</div>
+);
+}
+
+function CommandeView({clients, catalogue, onOrder}) {
+const [step, setStep]     = useState(1);
+const [client, setClient] = useState(null);
+const [custom, setCustom] = useState(””);
+const [cart, setCart]     = useState({});
+const [catF, setCatF]     = useState(“Tous”);
+const [done, setDone]     = useState(false);
+
+const active = clients.filter(c=>c.actif);
+const prods  = catalogue.filter(p=>p.actif);
+const cats   = [“Tous”,…CATS.filter(c=>prods.some(p=>p.cat===c))];
+const shown  = catF===“Tous” ? prods : prods.filter(p=>p.cat===catF);
+
+const setQty = (id,d) => setCart(prev => {
+const next={…prev,[id]:Math.max(0,(prev[id]||0)+d)};
+if(!next[id]) delete next[id];
+return next;
+});
+
+const items = Object.entries(cart).map(([id,qty])=>({…catalogue.find(x=>x.id===+id),qty})).filter(Boolean);
+const sub   = items.reduce((s,i)=>s+i.qty*i.price,0);
+const disc  = client?.fondateur ? sub*0.05 : 0;
+const total = sub-disc;
+const count = Object.values(cart).reduce((a,b)=>a+b,0);
+
+const submit = () => {
+onOrder({id:“CMD-”+String(Date.now()).slice(-4),clientId:client?.id||99,clientName:client?client.name:custom,date:new Date().toISOString().slice(0,10),status:“en cours”,items:items.map(i=>({name:i.name,qty:i.qty,unit:i.unit,price:i.price})),fondateur:client?.fondateur||false});
+setDone(true);
+};
+
+if(done) return (
+<div style={{textAlign:“center”,padding:“60px 20px”}} className=“slide-in”>
+<div style={{fontSize:72}}>🎉</div>
+<div className=“bebas” style={{fontSize:42,color:“var(–green)”,marginTop:12}}>Commande envoyée !</div>
+<p style={{color:“var(–gray)”,marginTop:8}}>Livraison demain matin avant 10h.</p>
+<button className=“btn-primary” style={{marginTop:28,maxWidth:260,margin:“28px auto 0”,display:“block”}} onClick={()=>{setDone(false);setStep(1);setCart({});setClient(null);setCustom(””);}}>Nouvelle commande</button>
+</div>
+);
+
+return (
+<div>
+<div style={{display:“flex”,alignItems:“center”,gap:8,marginBottom:20}}>
+{[[“1”,“Client”],[“2”,“Produits”],[“3”,“Récap”]].map(([n,label],i)=>(
+<div key={n} style={{display:“flex”,alignItems:“center”,gap:6}}>
+<div style={{width:26,height:26,borderRadius:“50%”,background:step>i+1?“var(–green)”:step===i+1?“var(–dark)”:”#E5E7EB”,color:step>=i+1?“white”:“var(–gray)”,display:“flex”,alignItems:“center”,justifyContent:“center”,fontSize:11,fontWeight:700,flexShrink:0}}>{step>i+1?“✓”:n}</div>
+<span style={{fontSize:12,fontWeight:step===i+1?600:400,color:step===i+1?“var(–dark)”:“var(–gray)”}}>{label}</span>
+{i<2&&<div style={{width:20,height:2,background:step>i+1?“var(–green)”:”#E5E7EB”,borderRadius:2}}/>}
+</div>
+))}
+</div>
+
+```
+  {step===1&&(
+    <div className="slide-in">
+      <div className="bebas" style={{fontSize:32,marginBottom:4}}>Qui êtes-vous ?</div>
+      <p style={{color:"var(--gray)",fontSize:13,marginBottom:16}}>Sélectionnez votre restaurant.</p>
+      <div style={{display:"grid",gap:8,marginBottom:14}}>
+        {active.map(c=>(
+          <div key={c.id} onClick={()=>setClient(c)} style={{padding:"12px 14px",borderRadius:12,border:client?.id===c.id?"2px solid var(--green)":"1.5px solid var(--border)",background:client?.id===c.id?"var(--green-pale)":"white",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div><div style={{fontWeight:600,fontSize:14}}>{c.name}</div><div style={{fontSize:12,color:"var(--gray)"}}>{c.contact}</div></div>
+            {c.fondateur&&<span className="badge badge-green">⭐ -5%</span>}
+          </div>
+        ))}
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+        <div style={{flex:1,height:1,background:"var(--border)"}}/>
+        <span style={{fontSize:12,color:"var(--gray)"}}>ou</span>
+        <div style={{flex:1,height:1,background:"var(--border)"}}/>
+      </div>
+      <input className="input" placeholder="Nom de votre restaurant…" value={custom} onChange={e=>{setCustom(e.target.value);setClient(null);}}/>
+      <button className="btn-primary" style={{marginTop:14}} disabled={!client&&!custom.trim()} onClick={()=>setStep(2)}>Continuer →</button>
+    </div>
+  )}
+
+  {step===2&&(
+    <div className="slide-in">
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+        <div className="bebas" style={{fontSize:32}}>Commande</div>
+        {count>0&&<div style={{background:"var(--green)",color:"white",padding:"4px 12px",borderRadius:100,fontSize:12,fontWeight:600}}>{count} · {total.toFixed(2)}€</div>}
+      </div>
+      <p style={{color:"var(--gray)",fontSize:12,marginBottom:12}}>{client?.fondateur?"⭐ Réduction -5% appliquée":"Minimum 50 €"}</p>
+      <div style={{display:"flex",gap:6,marginBottom:14,overflowX:"auto",paddingBottom:4}}>
+        {cats.map(c=><button key={c} className={`cat-pill ${catF===c?"active":""}`} onClick={()=>setCatF(c)}>{c}</button>)}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:10}}>
+        {shown.map(p=>{
+          const q=cart[p.id]||0;
+          return (
+            <div key={p.id} style={{background:q>0?"var(--green-pale)":"white",border:`1.5px solid ${q>0?"var(--green)":"var(--border)"}`,borderRadius:14,padding:12}}>
+              <div style={{fontSize:24,marginBottom:4}}>{p.emoji}</div>
+              <div style={{fontWeight:600,fontSize:12,lineHeight:1.3,marginBottom:2}}>{p.name}</div>
+              <div style={{color:"var(--gray)",fontSize:11,marginBottom:8}}>{p.price.toFixed(2)}€/{p.unit}</div>
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                <button className="qty-btn" onClick={()=>setQty(p.id,-1)}>−</button>
+                <span className="mono" style={{fontSize:13,fontWeight:700,minWidth:14,textAlign:"center"}}>{q}</span>
+                <button className="qty-btn" style={{background:"var(--dark)",color:"white",border:"none"}} onClick={()=>setQty(p.id,1)}>+</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{display:"flex",gap:10,marginTop:18}}>
+        <button className="btn-ghost" onClick={()=>setStep(1)}>←</button>
+        <button className="btn-primary" disabled={items.length===0||sub<50} onClick={()=>setStep(3)}>
+          {sub<50?`Min. 50€ (${sub.toFixed(2)}€)`:"Récapitulatif →"}
+        </button>
+      </div>
+    </div>
+  )}
+
+  {step===3&&(
+    <div className="slide-in">
+      <div className="bebas" style={{fontSize:32,marginBottom:4}}>Récapitulatif</div>
+      <div className="card" style={{padding:16,marginBottom:12}}>
+        <div style={{fontWeight:600,marginBottom:8,display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+          🏪 {client?.name||custom} {client?.fondateur&&<span className="badge badge-green">⭐ -5%</span>}
+        </div>
+        <div className="divider"/>
+        {items.map(item=>(
+          <div key={item.id} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid var(--border)",fontSize:13}}>
+            <span>{item.emoji} {item.name} × {item.qty}</span>
+            <span className="mono" style={{fontWeight:600}}>{(item.qty*item.price).toFixed(2)}€</span>
+          </div>
+        ))}
+        <div className="divider"/>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"var(--gray)",marginBottom:4}}><span>Sous-total</span><span className="mono">{sub.toFixed(2)}€</span></div>
+        {disc>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"var(--green)",marginBottom:4}}><span>⭐ Fondateur (-5%)</span><span className="mono">-{disc.toFixed(2)}€</span></div>}
+        <div style={{display:"flex",justifyContent:"space-between",fontWeight:700,fontSize:17,marginTop:6}}><span>Total HT</span><span className="mono" style={{color:"var(--green)"}}>{total.toFixed(2)}€</span></div>
+      </div>
+      <div className="card" style={{padding:"12px 14px",marginBottom:18,background:"var(--green-pale)",border:"1.5px solid var(--green-bright)"}}>
+        <span style={{fontSize:13,color:"var(--green)",fontWeight:600}}>🚛 Livraison demain avant 10h</span>
+      </div>
+      <div style={{display:"flex",gap:10}}>
+        <button className="btn-ghost" onClick={()=>setStep(2)}>← Modifier</button>
+        <button className="btn-primary" onClick={submit}>✅ Valider</button>
+      </div>
+    </div>
+  )}
+</div>
+```
+
+);
+}
+
+function DashboardView({orders, onUpdateStatus}) {
+const totalCA = orders.reduce((s,o)=>s+computeTotal(o.items,o.fondateur),0);
+const pending = orders.filter(o=>o.status===“en cours”).length;
+const statusColor={“en cours”:“var(–orange)”,“livré”:“var(–green)”,“annulé”:“var(–gray)”};
+return (
+<div className="slide-in">
+<div style={{marginBottom:20}}>
+<div className="bebas" style={{fontSize:36,lineHeight:1}}>Dashboard</div>
+<div style={{fontSize:12,color:“var(–gray)”,marginTop:3,display:“flex”,alignItems:“center”,gap:6}}>
+<span className="dot dot-live"/> Temps réel · {new Date().toLocaleDateString(“fr-FR”,{weekday:“long”,day:“numeric”,month:“long”})}
+</div>
+</div>
+<div style={{display:“grid”,gridTemplateColumns:“repeat(3,1fr)”,gap:10,marginBottom:22}}>
+{[{label:“CA total”,value:totalCA.toFixed(0)+“€”,icon:“💰”,sub:“total”},{label:“En cours”,value:pending,icon:“🚛”,sub:“à livrer”},{label:“Commandes”,value:orders.length,icon:“📦”,sub:“total”}].map(kpi=>(
+<div key={kpi.label} className="card" style={{padding:14}}>
+<div style={{fontSize:20}}>{kpi.icon}</div>
+<div className=“bebas” style={{fontSize:26,color:“var(–green)”,lineHeight:1.1,marginTop:3}}>{kpi.value}</div>
+<div style={{fontSize:10,fontWeight:700,marginTop:2}}>{kpi.label}</div>
+<div style={{fontSize:10,color:“var(–gray)”}}>{kpi.sub}</div>
+</div>
+))}
+</div>
+<div className="bebas" style={{fontSize:22,marginBottom:10}}>Commandes</div>
+<div style={{display:“flex”,flexDirection:“column”,gap:10}}>
+{orders.length===0&&<div className=“card” style={{padding:40,textAlign:“center”,color:“var(–gray)”}}>Aucune commande.</div>}
+{orders.map((order,idx)=>{
+const total=computeTotal(order.items,order.fondateur);
+return (
+<div key={order.id} className=“card” style={{padding:“13px 14px”}}>
+<div style={{display:“flex”,alignItems:“flex-start”,justifyContent:“space-between”,gap:10,flexWrap:“wrap”}}>
+<div style={{flex:1,minWidth:0}}>
+<div style={{display:“flex”,alignItems:“center”,gap:6,marginBottom:3,flexWrap:“wrap”}}>
+<span className={`dot ${order.status==="en cours"?"dot-pending":"dot-done"}`}/>
+<span style={{fontWeight:700,fontSize:14}}>{order.clientName}</span>
+{order.fondateur&&<span className="badge badge-green" style={{fontSize:10}}>⭐</span>}
+</div>
+<div style={{fontSize:11,color:“var(–gray)”,marginBottom:7}}><span className="mono">{order.id}</span> · {order.date}</div>
+<div style={{display:“flex”,flexWrap:“wrap”,gap:4}}>
+{order.items.map(item=><span key={item.name} className="badge badge-gray" style={{fontSize:10}}>{item.name} ×{item.qty}</span>)}
+</div>
+</div>
+<div style={{textAlign:“right”,flexShrink:0}}>
+<div className=“mono” style={{fontWeight:700,fontSize:17,color:“var(–green)”}}>{total.toFixed(2)}€</div>
+{order.fondateur&&<div style={{fontSize:10,color:“var(–green)”,marginBottom:5}}>-5%</div>}
+<select value={order.status} onChange={e=>onUpdateStatus(order.id,e.target.value)} style={{padding:“6px 8px”,borderRadius:8,border:“1.5px solid var(–border)”,fontSize:11,fontWeight:600,cursor:“pointer”,color:statusColor[order.status],fontFamily:“DM Sans,sans-serif”,background:“white”,outline:“none”}}>
+<option value="en cours">🚛 En cours</option>
+<option value="livré">✅ Livré</option>
+<option value="annulé">❌ Annulé</option>
+</select>
+</div>
+</div>
+</div>
+);
+})}
+</div>
+</div>
+);
+}
+
+function AdminView({clients, setClients, catalogue, setCatalogue, showToast}) {
+const [tab,    setTab]   = useState(“clients”);
+const [cModal, setCModal]= useState(null);
+const [pModal, setPModal]= useState(null);
+const [cForm,  setCForm] = useState({name:””,contact:””,fondateur:false,actif:true});
+const [pForm,  setPForm] = useState({name:””,emoji:“🥦”,price:””,unit:“kg”,cat:“Légumes”,actif:true});
+
+const openC=(c)=>{setCForm(c===“new”?{name:””,contact:””,fondateur:false,actif:true}:{name:c.name,contact:c.contact,fondateur:c.fondateur,actif:c.actif});setCModal(c);};
+const saveC=()=>{
+if(!cForm.name.trim())return;
+if(cModal===“new”){setClients(p=>[…p,{id:Date.now(),…cForm}]);showToast(“✅ Client ajouté !”);}
+else{setClients(p=>p.map(c=>c.id===cModal.id?{…c,…cForm}:c));showToast(“✅ Mis à jour !”);}
+setCModal(null);
+};
+const openP=(p)=>{setPForm(p===“new”?{name:””,emoji:“🥦”,price:””,unit:“kg”,cat:“Légumes”,actif:true}:{name:p.name,emoji:p.emoji,price:String(p.price),unit:p.unit,cat:p.cat,actif:p.actif});setPModal(p);};
+const saveP=()=>{
+if(!pForm.name.trim()||!pForm.price)return;
+const data={…pForm,price:parseFloat(pForm.price)};
+if(pModal===“new”){setCatalogue(p=>[…p,{id:Date.now(),…data}]);showToast(“✅ Produit ajouté !”);}
+else{setCatalogue(p=>p.map(x=>x.id===pModal.id?{…x,…data}:x));showToast(“✅ Mis à jour !”);}
+setPModal(null);
+};
+
+return (
+<div className="slide-in">
+<div className="bebas" style={{fontSize:36,lineHeight:1,marginBottom:4}}>Administration</div>
+<p style={{color:“var(–gray)”,fontSize:13,marginBottom:18}}>Gérez vos clients et votre catalogue.</p>
+<div style={{display:“flex”,gap:6,marginBottom:20,background:”#F9FAFB”,padding:4,borderRadius:100,width:“fit-content”}}>
+{[[“clients”,`👥 Clients (${clients.length})`],[“catalogue”,`🥦 Catalogue (${catalogue.length})`]].map(([v,label])=>(
+<div key={v} onClick={()=>setTab(v)} style={{padding:“8px 16px”,borderRadius:100,cursor:“pointer”,background:tab===v?“var(–dark)”:“transparent”,color:tab===v?“white”:“var(–gray)”,fontWeight:600,fontSize:13,whiteSpace:“nowrap”}}>{label}</div>
+))}
+</div>
+
+```
+  {tab==="clients"&&(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <span className="badge badge-green">⭐ {clients.filter(c=>c.fondateur).length} Fondateurs</span>
+        <button className="btn-ghost" style={{fontSize:12,padding:"7px 14px"}} onClick={()=>openC("new")}>+ Ajouter</button>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {clients.map(c=>(
+          <div key={c.id} className="row-item" style={{opacity:c.actif?1:0.5}}>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                <span style={{fontWeight:600,fontSize:13}}>{c.name}</span>
+                {c.fondateur&&<span className="badge badge-green" style={{fontSize:10}}>⭐</span>}
+                {!c.actif&&<span className="badge badge-gray" style={{fontSize:10}}>Inactif</span>}
+              </div>
+              <div style={{fontSize:11,color:"var(--gray)"}}>{c.contact}</div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <button onClick={()=>setClients(p=>p.map(x=>x.id===c.id?{...x,actif:!x.actif}:x))} className={`toggle ${c.actif?"on":"off"}`}/>
+              <button className="btn-ghost" style={{fontSize:12,padding:"6px 10px"}} onClick={()=>openC(c)}>✏️</button>
+              <button className="btn-danger" onClick={()=>{setClients(p=>p.filter(x=>x.id!==c.id));showToast("🗑️ Supprimé.");}}>🗑️</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {tab==="catalogue"&&(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+          {CATS.map(c=>{const n=catalogue.filter(p=>p.cat===c&&p.actif).length;return n>0?<span key={c} className="badge badge-gray">{c} ({n})</span>:null;})}
+        </div>
+        <button className="btn-ghost" style={{fontSize:12,padding:"7px 14px"}} onClick={()=>openP("new")}>+ Ajouter</button>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:7}}>
+        {catalogue.map(p=>(
+          <div key={p.id} className="row-item" style={{opacity:p.actif?1:0.5}}>
+            <span style={{fontSize:20,flexShrink:0}}>{p.emoji}</span>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
+                <span style={{fontWeight:600,fontSize:13}}>{p.name}</span>
+                <span className="badge badge-gray" style={{fontSize:10}}>{p.cat}</span>
+                {!p.actif&&<span className="badge badge-red" style={{fontSize:10}}>Masqué</span>}
+              </div>
+              <div style={{fontSize:11,color:"var(--gray)"}}><span className="mono">{p.price.toFixed(2)}€</span> / {p.unit}</div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <button onClick={()=>setCatalogue(prev=>prev.map(x=>x.id===p.id?{...x,actif:!x.actif}:x))} className={`toggle ${p.actif?"on":"off"}`}/>
+              <button className="btn-ghost" style={{fontSize:12,padding:"6px 10px"}} onClick={()=>openP(p)}>✏️</button>
+              <button className="btn-danger" onClick={()=>{setCatalogue(prev=>prev.filter(x=>x.id!==p.id));showToast("🗑️ Supprimé.");}}>🗑️</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {cModal!==null&&(
+    <div className="modal-bg" onClick={()=>setCModal(null)}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="bebas" style={{fontSize:26,marginBottom:16}}>{cModal==="new"?"Nouveau client":"Modifier"}</div>
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+          <div><label>Nom du restaurant *</label><input className="input" placeholder="Ex : Le Petit Zinc" value={cForm.name} onChange={e=>setCForm(f=>({...f,name:e.target.value}))}/></div>
+          <div><label>Contact</label><input className="input" placeholder="Ex : Jean D." value={cForm.contact} onChange={e=>setCForm(f=>({...f,contact:e.target.value}))}/></div>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"11px 13px",background:"var(--green-pale)",borderRadius:10}}>
+            <div style={{fontWeight:600,fontSize:13}}>⭐ Membre Fondateur (-5%)</div>
+            <button onClick={()=>setCForm(f=>({...f,fondateur:!f.fondateur}))} className={`toggle ${cForm.fondateur?"on":"off"}`}/>
+          </div>
+          <div style={{display:"flex",gap:10,marginTop:4}}>
+            <button className="btn-ghost" style={{flex:1}} onClick={()=>setCModal(null)}>Annuler</button>
+            <button className="btn-primary" style={{flex:1}} onClick={saveC} disabled={!cForm.name.trim()}>{cModal==="new"?"Ajouter":"Enregistrer"}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {pModal!==null&&(
+    <div className="modal-bg" onClick={()=>setPModal(null)}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="bebas" style={{fontSize:26,marginBottom:16}}>{pModal==="new"?"Nouveau produit":"Modifier"}</div>
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+          <div>
+            <label>Emoji</label>
+            <div style={{display:"flex",flexWrap:"wrap",gap:5,padding:8,background:"#F9FAFB",borderRadius:10,border:"1.5px solid var(--border)",maxHeight:88,overflowY:"auto"}}>
+              {EMOJIS.map(e=><span key={e} onClick={()=>setPForm(f=>({...f,emoji:e}))} style={{fontSize:19,cursor:"pointer",padding:"2px 3px",borderRadius:6,background:pForm.emoji===e?"var(--green-pale)":"transparent",border:pForm.emoji===e?"1.5px solid var(--green)":"1.5px solid transparent"}}>{e}</span>)}
+            </div>
+          </div>
+          <div><label>Nom *</label><input className="input" placeholder="Ex : Courgettes" value={pForm.name} onChange={e=>setPForm(f=>({...f,name:e.target.value}))}/></div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+            <div><label>Prix (€) *</label><input className="input" type="number" placeholder="2.50" min="0" step="0.1" value={pForm.price} onChange={e=>setPForm(f=>({...f,price:e.target.value}))}/></div>
+            <div><label>Unité</label><select className="select" value={pForm.unit} onChange={e=>setPForm(f=>({...f,unit:e.target.value}))}>{UNITS.map(u=><option key={u}>{u}</option>)}</select></div>
+            <div><label>Catégorie</label><select className="select" value={pForm.cat} onChange={e=>setPForm(f=>({...f,cat:e.target.value}))}>{CATS.map(c=><option key={c}>{c}</option>)}</select></div>
+          </div>
+          <div style={{display:"flex",gap:10,marginTop:4}}>
+            <button className="btn-ghost" style={{flex:1}} onClick={()=>setPModal(null)}>Annuler</button>
+            <button className="btn-primary" style={{flex:1}} onClick={saveP} disabled={!pForm.name.trim()||!pForm.price}>{pModal==="new"?"Ajouter":"Enregistrer"}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+```
+
+);
+}
+
+ReactDOM.createRoot(document.getElementById(“root”)).render(<App/>);
+</script>
+
+</body>
+</html>
