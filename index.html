@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Fresh Rungis"/>
+<meta name="theme-color" content="#2D6A4F"/>
+<title>Fresh Rungis</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥦</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#2D6A4F;--gl:#40916C;--gb:#52B788;--gp:#D8F3DC;
+  --cr:#FEFAE0;--or:#E76F51;--dk:#081C15;--gy:#6B7280;
+  --bd:rgba(45,106,79,.15);--rd:#DC2626;--rp:#FEE2E2;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cr);color:var(--dk);min-height:100vh;padding-bottom:70px}
+.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.05em}
+header{background:#fff;border-bottom:1.5px solid var(--bd);position:sticky;top:0;z-index:50;padding:0 16px;display:flex;align-items:center;height:54px;gap:8px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--bd);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom,0)}
+.nt{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;gap:3px}
+.nt .ni{font-size:22px;transition:transform .2s}
+.nt .nl{font-size:10px;font-weight:600;color:var(--gy)}
+.nt.on .nl{color:var(--g)}
+.nt.on .ni{transform:scale(1.15)}
+.page{display:none;padding:18px 14px;max-width:860px;margin:0 auto}
+.page.on{display:block}
+.card{background:#fff;border-radius:16px;border:1.5px solid var(--bd);padding:16px;margin-bottom:12px}
+.btn{display:block;width:100%;padding:13px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;text-align:center}
+.btn-g{background:var(--g);color:#fff}
+.btn-g:disabled{background:#ccc;cursor:not-allowed}
+.btn-w{background:#fff;border:1.5px solid var(--bd);color:var(--dk)}
+.inp{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--bd);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.inp:focus{border-color:var(--gb)}
+.sel{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--bd);font-family:'DM Sans',sans-serif;font-size:14px;background:#fff;outline:none}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600}
+.bg{background:var(--gp);color:var(--g)}
+.br{background:var(--rp);color:var(--rd)}
+.bx{background:#F3F4F6;color:var(--gy)}
+.tag{font-size:10px;padding:2px 7px}
+.row{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-radius:12px;border:1.5px solid var(--bd);background:#fff;gap:8px;margin-bottom:7px}
+.tog{width:44px;height:24px;border-radius:100px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.tog::after{content:'';position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
+.tog.on{background:var(--g)}
+.tog.on::after{left:23px}
+.tog.off{background:#D1D5DB}
+.tog.off::after{left:3px}
+.div{height:1px;background:var(--bd);margin:12px 0}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--dk);color:#fff;padding:12px 22px;border-radius:100px;font-size:13px;font-weight:500;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.2);white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-end;justify-content:center}
+.overlay.on{display:flex}
+.sheet{background:#fff;border-radius:20px 20px 0 0;padding:24px 18px 32px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.pill{padding:7px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--bd);background:#fff;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.pill.on{background:var(--dk);color:#fff;border-color:var(--dk)}
+.pcard{border-radius:14px;padding:12px;border:1.5px solid var(--bd);background:#fff}
+.pcard.sel{border-color:var(--g);background:var(--gp)}
+.qb{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bd);background:#fff;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.qb.dark{background:var(--dk);color:#fff;border:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot-or{background:var(--or)}
+.dot-gy{background:var(--gy)}
+.dot-gn{background:#22C55E;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+label{font-size:12px;font-weight:600;color:var(--gy);display:block;margin-bottom:5px}
+.step-row{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.flex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gap6{gap:6px}
+.gap10{gap:10px}
+.mb8{margin-bottom:8px}
+.mb12{margin-bottom:12px}
+.mb16{margin-bottom:16px}
+.mb18{margin-bottom:18px}
+.mt14{margin-top:14px}
+.mt18{margin-top:18px}
+.grow{flex:1}
+.right{text-align:right}
+.green{color:var(--g)}
+.gray{color:var(--gy)}
+.bold{font-weight:700}
+.f12{font-size:12px}
+.f13{font-size:13px}
+.f14{font-size:14px}
+.f17{font-size:17px}
+.f20{font-size:20px}
+.f22{font-size:22px}
+.f32{font-size:32px}
+.f36{font-size:36px}
+.mono{font-family:monospace}
+.scroll-x{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+</style>
+</head>
+<body>
+
+<header>
+  <span style="font-size:22px">🥦</span>
+  <div>
+    <div class="bebas" style="font-size:18px;color:var(--g);line-height:1">Fresh Rungis</div>
+    <div style="font-size:9px;color:var(--gy);text-transform:uppercase;letter-spacing:.08em">Puteaux · 6j/7</div>
+  </div>
+</header>
+
+<div id="p-cmd" class="page on"></div>
+<div id="p-dash" class="page"></div>
+<div id="p-admin" class="page"></div>
+
+<nav>
+  <div class="nt on" data-page="cmd" onclick="goPage('cmd')">
+    <span class="ni">🛒</span><span class="nl">Commander</span>
+  </div>
+  <div class="nt" data-page="dash" onclick="goPage('dash')">
+    <span class="ni">📊</span><span class="nl">Dashboard</span>
+  </div>
+  <div class="nt" data-page="admin" onclick="goPage('admin')">
+    <span class="ni">⚙️</span><span class="nl">Admin</span>
+  </div>
+</nav>
+
+<div id="toast" class="toast"></div>
+<div id="modal" class="overlay" onclick="closeModal()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+let clients = [
+  {id:1,name:"Le Bistrot de la Tour",contact:"Marc D.",   fondateur:true, actif:true},
+  {id:2,name:"Brasserie Puteaux",    contact:"Sophie L.", fondateur:true, actif:true},
+  {id:3,name:"L'Atelier Gourmand",  contact:"Pierre M.", fondateur:true, actif:true},
+  {id:4,name:"Resto du Port",        contact:"Julie R.",  fondateur:true, actif:true},
+  {id:5,name:"Chez Tonton",          contact:"Paul B.",   fondateur:true, actif:true},
+];
+
+let catalogue = [
+  {id:1, e:"🍅",n:"Tomates grappe",      u:"kg",    p:3.2, c:"Légumes",a:true},
+  {id:2, e:"🍅",n:"Tomates cerises",      u:"barq.", p:3.8, c:"Légumes",a:true},
+  {id:3, e:"🥦",n:"Brocolis",             u:"pièce", p:2.1, c:"Légumes",a:true},
+  {id:4, e:"🥕",n:"Carottes",             u:"kg",    p:1.4, c:"Légumes",a:true},
+  {id:5, e:"🧅",n:"Oignons jaunes",       u:"kg",    p:1.1, c:"Légumes",a:true},
+  {id:6, e:"🧅",n:"Oignons rouges",       u:"kg",    p:1.4, c:"Légumes",a:true},
+  {id:7, e:"🧄",n:"Ail rose de Lautrec",  u:"tête",  p:0.9, c:"Légumes",a:true},
+  {id:8, e:"🥬",n:"Salade frisée",        u:"pièce", p:1.8, c:"Légumes",a:true},
+  {id:9, e:"🥬",n:"Mâche",               u:"sachet",p:2.4, c:"Légumes",a:true},
+  {id:10,e:"🥬",n:"Roquette",             u:"sachet",p:2.2, c:"Légumes",a:true},
+  {id:11,e:"🫑",n:"Poivrons rouges",      u:"kg",    p:4.5, c:"Légumes",a:true},
+  {id:12,e:"🫑",n:"Poivrons verts",       u:"kg",    p:3.8, c:"Légumes",a:true},
+  {id:13,e:"🥒",n:"Concombres",           u:"pièce", p:1.2, c:"Légumes",a:true},
+  {id:14,e:"🍆",n:"Aubergines",           u:"kg",    p:3.0, c:"Légumes",a:true},
+  {id:15,e:"🌽",n:"Courgettes",           u:"kg",    p:2.5, c:"Légumes",a:true},
+  {id:16,e:"🥔",n:"Pommes de terre",      u:"kg",    p:1.0, c:"Légumes",a:true},
+  {id:17,e:"🥔",n:"PDT grenaille",        u:"kg",    p:2.2, c:"Légumes",a:true},
+  {id:18,e:"🫛",n:"Haricots verts",       u:"kg",    p:4.8, c:"Légumes",a:true},
+  {id:19,e:"🫛",n:"Petits pois",          u:"kg",    p:3.5, c:"Légumes",a:true},
+  {id:20,e:"🍄",n:"Champignons Paris",    u:"kg",    p:3.2, c:"Légumes",a:true},
+  {id:21,e:"🍄",n:"Pleurotes",            u:"kg",    p:6.5, c:"Légumes",a:true},
+  {id:22,e:"🥗",n:"Céleri branche",       u:"pièce", p:1.8, c:"Légumes",a:true},
+  {id:23,e:"🥗",n:"Fenouil",              u:"pièce", p:1.6, c:"Légumes",a:true},
+  {id:24,e:"🥗",n:"Poireaux",             u:"botte", p:2.0, c:"Légumes",a:true},
+  {id:25,e:"🥗",n:"Épinards frais",       u:"sachet",p:2.8, c:"Légumes",a:true},
+  {id:26,e:"🥗",n:"Endives",              u:"kg",    p:2.6, c:"Légumes",a:true},
+  {id:27,e:"🌽",n:"Maïs",                u:"épi",   p:0.8, c:"Légumes",a:true},
+  {id:28,e:"🥗",n:"Betteraves crues",     u:"kg",    p:1.5, c:"Légumes",a:true},
+  {id:29,e:"🍋",n:"Citrons",              u:"kg",    p:2.8, c:"Fruits", a:true},
+  {id:30,e:"🍋",n:"Citrons verts",        u:"kg",    p:3.5, c:"Fruits", a:true},
+  {id:31,e:"🍊",n:"Oranges",              u:"kg",    p:2.0, c:"Fruits", a:true},
+  {id:32,e:"🍊",n:"Clémentines",          u:"kg",    p:2.6, c:"Fruits", a:true},
+  {id:33,e:"🍎",n:"Pommes Golden",        u:"kg",    p:2.2, c:"Fruits", a:true},
+  {id:34,e:"🍎",n:"Pommes Pink Lady",     u:"kg",    p:2.9, c:"Fruits", a:true},
+  {id:35,e:"🍐",n:"Poires Williams",      u:"kg",    p:2.8, c:"Fruits", a:true},
+  {id:36,e:"🍇",n:"Raisins Italia",       u:"kg",    p:4.2, c:"Fruits", a:true},
+  {id:37,e:"🍇",n:"Raisins muscat",       u:"kg",    p:4.8, c:"Fruits", a:true},
+  {id:38,e:"🍓",n:"Fraises Gariguette",   u:"barq.", p:3.9, c:"Fruits", a:true},
+  {id:39,e:"🫐",n:"Myrtilles",            u:"barq.", p:4.5, c:"Fruits", a:true},
+  {id:40,e:"🍒",n:"Cerises",              u:"kg",    p:6.8, c:"Fruits", a:true},
+  {id:41,e:"🍑",n:"Pêches plates",        u:"kg",    p:3.6, c:"Fruits", a:true},
+  {id:42,e:"🍑",n:"Nectarines",           u:"kg",    p:3.4, c:"Fruits", a:true},
+  {id:43,e:"🥭",n:"Mangues",              u:"pièce", p:2.5, c:"Fruits", a:true},
+  {id:44,e:"🍍",n:"Ananas",               u:"pièce", p:3.2, c:"Fruits", a:true},
+  {id:45,e:"🥝",n:"Kiwis",               u:"kg",    p:3.1, c:"Fruits", a:true},
+  {id:46,e:"🍌",n:"Bananes",              u:"kg",    p:1.8, c:"Fruits", a:true},
+  {id:47,e:"🍉",n:"Pastèque",             u:"pièce", p:5.5, c:"Fruits", a:true},
+  {id:48,e:"🍈",n:"Melon Charentais",     u:"pièce", p:3.0, c:"Fruits", a:true},
+  {id:49,e:"🥑",n:"Avocats",              u:"pièce", p:1.2, c:"Fruits", a:true},
+  {id:50,e:"🌿",n:"Basilic frais",        u:"botte", p:1.5, c:"Herbes", a:true},
+  {id:51,e:"🌱",n:"Coriandre",            u:"botte", p:1.2, c:"Herbes", a:true},
+  {id:52,e:"🌿",n:"Persil plat",          u:"botte", p:1.0, c:"Herbes", a:true},
+  {id:53,e:"🌿",n:"Persil frisé",         u:"botte", p:1.0, c:"Herbes", a:true},
+  {id:54,e:"🌿",n:"Thym frais",           u:"botte", p:1.3, c:"Herbes", a:true},
+  {id:55,e:"🌿",n:"Romarin",              u:"botte", p:1.3, c:"Herbes", a:true},
+  {id:56,e:"🌿",n:"Menthe fraîche",       u:"botte", p:1.2, c:"Herbes", a:true},
+  {id:57,e:"🌿",n:"Estragon",             u:"botte", p:1.5, c:"Herbes", a:true},
+  {id:58,e:"🌿",n:"Cerfeuil",             u:"botte", p:1.4, c:"Herbes", a:true},
+  {id:59,e:"🌿",n:"Ciboulette",           u:"botte", p:1.2, c:"Herbes", a:true},
+  {id:60,e:"🌿",n:"Laurier frais",        u:"botte", p:1.5, c:"Herbes", a:true},
+  {id:61,e:"🌿",n:"Sauge fraîche",        u:"botte", p:1.4, c:"Herbes", a:true},
+];
+
+let orders = [
+  {id:"CMD-001",cname:"Le Bistrot de la Tour",date:"2025-03-21",status:"livré",   items:[{n:"Tomates grappe",q:5,u:"kg",p:3.2},{n:"Basilic frais",q:3,u:"botte",p:1.5}],fond:true},
+  {id:"CMD-002",cname:"Brasserie Puteaux",    date:"2025-03-22",status:"en cours",items:[{n:"Salade frisée",q:8,u:"pièce",p:1.8},{n:"Carottes",q:3,u:"kg",p:1.4}],    fond:true},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let cart = {};
+let selClient = null;
+let cmdStep = 1;
+let catFilter = "Tous";
+let adminTab = "clients";
+let editId = null;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function tot(items,fond){const s=items.reduce((a,i)=>a+i.q*i.p,0);return fond?s*.95:s;}
+function fmtDate(){return new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});}
+function uid(){return "CMD-"+String(Date.now()).slice(-4);}
+
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
+function openModal(html){
+  document.getElementById("modal-body").innerHTML=html;
+  document.getElementById("modal").classList.add("on");
+}
+function closeModal(){document.getElementById("modal").classList.remove("on");}
+
+function goPage(p){
+  document.querySelectorAll(".page").forEach(el=>el.classList.remove("on"));
+  document.querySelectorAll(".nt").forEach(el=>el.classList.remove("on"));
+  document.getElementById("p-"+p).classList.add("on");
+  document.querySelector(`.nt[data-page="${p}"]`).classList.add("on");
+  if(p==="cmd") renderCmd();
+  if(p==="dash") renderDash();
+  if(p==="admin") renderAdmin();
+}
+
+// ── COMMANDE ──────────────────────────────────────────────────────────────
+function renderCmd(){
+  const el=document.getElementById("p-cmd");
+  if(cmdStep===1) el.innerHTML=renderStep1();
+  else if(cmdStep===2) el.innerHTML=renderStep2();
+  else if(cmdStep===3) el.innerHTML=renderStep3();
+  else el.innerHTML=renderDone();
+}
+
+function stepBar(s){
+  const steps=[["1","Client"],["2","Produits"],["3","Récap"]];
+  return `<div class="step-row">`+steps.map(([n,label],i)=>{
+    const done=s>i+1,active=s===i+1;
+    const bg=done?"var(--g)":active?"var(--dk)":"#E5E7EB";
+    const col=done||active?"#fff":"var(--gy)";
+    return `<div class="step-dot" style="background:${bg};color:${col}">${done?"✓":n}</div>
+    <span class="f12" style="font-weight:${active?600:400};color:${active?"var(--dk)":"var(--gy)"}">${label}</span>
+    ${i<2?`<div style="width:20px;height:2px;background:${done?"var(--g)":"#E5E7EB"};border-radius:2px"></div>`:""}`;
+  }).join("")+`</div>`;
+}
+
+function renderStep1(){
+  const ac=clients.filter(c=>c.actif);
+  return stepBar(1)+`
+  <div class="bebas f32 mb8">Qui êtes-vous ?</div>
+  <p class="f13 gray mb16">Sélectionnez votre restaurant.</p>
+  ${ac.map(c=>`
+    <div onclick="selC(${c.id})" style="padding:12px 14px;border-radius:12px;border:${selClient?.id===c.id?"2px solid var(--g)":"1.5px solid var(--bd)"};background:${selClient?.id===c.id?"var(--gp)":"#fff"};cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+      <div><div class="bold f14">${c.name}</div><div class="f12 gray">${c.contact}</div></div>
+      ${c.fondateur?`<span class="badge bg">⭐ -5%</span>`:""}
+    </div>`).join("")}
+  <div class="flex" style="margin:14px 0"><div style="flex:1;height:1px;background:var(--bd)"></div><span class="f12 gray" style="padding:0 10px">ou</span><div style="flex:1;height:1px;background:var(--bd)"></div></div>
+  <input class="inp mb16" id="custom-name" placeholder="Nom de votre restaurant…" oninput="onCustom(this.value)"/>
+  <button class="btn btn-g" id="btn-next1" onclick="goStep2()" ${!selClient&&!document.getElementById("custom-name")?.value.trim()?"disabled":""}>Continuer →</button>`;
+}
+
+function selC(id){selClient=clients.find(c=>c.id===id);renderCmd();}
+function onCustom(v){selClient=null;document.getElementById("btn-next1").disabled=!v.trim();}
+function goStep2(){
+  const cn=document.getElementById("custom-name");
+  if(!selClient&&cn&&cn.value.trim()) selClient={id:99,name:cn.value.trim(),fondateur:false};
+  if(!selClient) return;
+  cmdStep=2;renderCmd();
+}
+
+function renderStep2(){
+  const prods=catalogue.filter(p=>p.a);
+  const cats=["Tous","Légumes","Fruits","Herbes"].filter(c=>c==="Tous"||prods.some(p=>p.c===c));
+  const shown=catFilter==="Tous"?prods:prods.filter(p=>p.c===catFilter);
+  const items=cartItems();
+  const sub=items.reduce((s,i)=>s+i.q*i.p,0);
+  const disc=selClient?.fondateur?sub*.05:0;
+  const total=sub-disc;
+  const count=Object.values(cart).reduce((a,b)=>a+b,0);
+  return stepBar(2)+`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <div class="bebas f32">Commande</div>
+    ${count>0?`<div style="background:var(--g);color:#fff;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600">${count} · ${total.toFixed(2)}€</div>`:""}
+  </div>
+  <p class="f12 gray mb12">${selClient?.fondateur?"⭐ Réduction -5% appliquée":"Minimum 50 €"}</p>
+  <div class="scroll-x">${cats.map(c=>`<button class="pill ${catFilter===c?"on":""}" onclick="setCat('${c}')">${c}</button>`).join("")}</div>
+  <div class="grid">${shown.map(p=>{const q=cart[p.id]||0;return`
+    <div class="pcard ${q>0?"sel":""}">
+      <div style="font-size:24px;margin-bottom:4px">${p.e}</div>
+      <div class="bold f12" style="line-height:1.3;margin-bottom:2px">${p.n}</div>
+      <div class="f12 gray" style="margin-bottom:8px">${p.p.toFixed(2)}€/${p.u}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="qb" onclick="setQ(${p.id},-1)">−</button>
+        <span class="mono bold" style="min-width:14px;text-align:center;font-size:13px">${q}</span>
+        <button class="qb dark" onclick="setQ(${p.id},1)">+</button>
+      </div>
+    </div>`;}).join("")}</div>
+  <div class="flex gap10 mt18">
+    <button class="btn btn-w" style="width:auto;padding:12px 20px" onclick="cmdStep=1;renderCmd()">←</button>
+    <button class="btn btn-g grow" ${items.length===0||sub<50?"disabled":""} onclick="cmdStep=3;renderCmd()">
+      ${sub<50?`Min. 50€ (${sub.toFixed(2)}€)`:"Récapitulatif →"}
+    </button>
+  </div>`;
+}
+
+function setCat(c){catFilter=c;renderCmd();}
+function setQ(id,d){cart[id]=Math.max(0,(cart[id]||0)+d);if(!cart[id])delete cart[id];renderCmd();}
+function cartItems(){return Object.entries(cart).map(([id,q])=>{const p=catalogue.find(x=>x.id===+id);return p?{...p,q}:null;}).filter(Boolean);}
+
+function renderStep3(){
+  const items=cartItems();
+  const sub=items.reduce((s,i)=>s+i.q*i.p,0);
+  const disc=selClient?.fondateur?sub*.05:0;
+  const total=sub-disc;
+  return stepBar(3)+`
+  <div class="bebas f32 mb16">Récapitulatif</div>
+  <div class="card">
+    <div class="flex mb8"><span class="bold f14">🏪 ${selClient.name}</span>${selClient.fondateur?`<span class="badge bg">⭐ -5%</span>`:""}</div>
+    <div class="div"></div>
+    ${items.map(i=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:13px"><span>${i.e} ${i.n} × ${i.q}</span><span class="mono bold">${(i.q*i.p).toFixed(2)}€</span></div>`).join("")}
+    <div class="div"></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gy);margin-bottom:4px"><span>Sous-total</span><span class="mono">${sub.toFixed(2)}€</span></div>
+    ${disc>0?`<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--g);margin-bottom:4px"><span>⭐ Fondateur (-5%)</span><span class="mono">-${disc.toFixed(2)}€</span></div>`:""}
+    <div style="display:flex;justify-content:space-between;font-weight:700;font-size:17px;margin-top:6px"><span>Total HT</span><span class="mono green">${total.toFixed(2)}€</span></div>
+  </div>
+  <div style="background:var(--gp);border:1.5px solid var(--gb);border-radius:12px;padding:12px 14px;margin-bottom:18px">
+    <span class="f13 green bold">🚛 Livraison demain avant 10h</span>
+  </div>
+  <div class="flex gap10">
+    <button class="btn btn-w" style="width:auto;padding:12px 20px" onclick="cmdStep=2;renderCmd()">← Modifier</button>
+    <button class="btn btn-g grow" onclick="submitOrder()">✅ Valider</button>
+  </div>`;
+}
+
+function submitOrder(){
+  const items=cartItems();
+  const sub=items.reduce((s,i)=>s+i.q*i.p,0);
+  orders.unshift({
+    id:uid(),cname:selClient.name,
+    date:new Date().toISOString().slice(0,10),
+    status:"en cours",
+    items:items.map(i=>({n:i.n,q:i.q,u:i.u,p:i.p})),
+    fond:selClient.fondateur||false
+  });
+  cart={};selClient=null;cmdStep=4;
+  showToast("✅ Commande envoyée !");
+  renderCmd();
+}
+
+function renderDone(){
+  return `<div style="text-align:center;padding:60px 20px">
+    <div style="font-size:72px">🎉</div>
+    <div class="bebas green" style="font-size:42px;margin-top:12px">Commande envoyée !</div>
+    <p class="f13 gray" style="margin-top:8px">Livraison demain matin avant 10h.</p>
+    <button class="btn btn-g" style="margin-top:28px;max-width:260px;margin-left:auto;margin-right:auto" onclick="cmdStep=1;catFilter='Tous';renderCmd()">Nouvelle commande</button>
+  </div>`;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDash(){
+  const totalCA=orders.reduce((s,o)=>s+tot(o.items,o.fond),0);
+  const pending=orders.filter(o=>o.status==="en cours").length;
+  const sc={"en cours":"var(--or)","livré":"var(--g)","annulé":"var(--gy)"};
+  document.getElementById("p-dash").innerHTML=`
+  <div style="margin-bottom:20px">
+    <div class="bebas f36" style="line-height:1">Dashboard</div>
+    <div class="flex f12 gray" style="margin-top:3px;gap:6px"><span class="dot dot-gn"></span>${fmtDate()}</div>
+  </div>
+  <div class="kpi-grid">
+    ${[{l:"CA total",v:totalCA.toFixed(0)+"€",i:"💰",s:"total"},
+       {l:"En cours",v:pending,i:"🚛",s:"à livrer"},
+       {l:"Commandes",v:orders.length,i:"📦",s:"total"}].map(k=>`
+    <div class="card" style="padding:14px">
+      <div class="f20">${k.i}</div>
+      <div class="bebas green" style="font-size:26px;line-height:1.1;margin-top:3px">${k.v}</div>
+      <div style="font-size:10px;font-weight:700;margin-top:2px">${k.l}</div>
+      <div style="font-size:10px;color:var(--gy)">${k.s}</div>
+    </div>`).join("")}
+  </div>
+  <div class="bebas f22 mb12">Commandes</div>
+  ${orders.length===0?`<div class="card" style="text-align:center;color:var(--gy);padding:40px">Aucune commande.</div>`:""}
+  ${orders.map(o=>{
+    const total=tot(o.items,o.fond);
+    return`<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div class="flex mb8" style="gap:6px">
+            <span class="dot ${o.status==="en cours"?"dot-or":"dot-gy"}"></span>
+            <span class="bold f14">${o.cname}</span>
+            ${o.fond?`<span class="badge bg tag">⭐</span>`:""}
+          </div>
+          <div class="f12 gray mb8"><span class="mono">${o.id}</span> · ${o.date}</div>
+          <div class="flex" style="gap:4px;flex-wrap:wrap">${o.items.map(i=>`<span class="badge bx tag">${i.n} ×${i.q}</span>`).join("")}</div>
+        </div>
+        <div class="right" style="flex-shrink:0">
+          <div class="mono bold f17 green">${total.toFixed(2)}€</div>
+          ${o.fond?`<div style="font-size:10px;color:var(--g);margin-bottom:5px">-5%</div>`:""}
+          <select onchange="updStatus('${o.id}',this.value)" style="padding:6px 8px;border-radius:8px;border:1.5px solid var(--bd);font-size:11px;font-weight:600;cursor:pointer;color:${sc[o.status]};background:#fff;outline:none;font-family:'DM Sans',sans-serif">
+            <option value="en cours" ${o.status==="en cours"?"selected":""}>🚛 En cours</option>
+            <option value="livré" ${o.status==="livré"?"selected":""}>✅ Livré</option>
+            <option value="annulé" ${o.status==="annulé"?"selected":""}>❌ Annulé</option>
+          </select>
+        </div>
+      </div>
+    </div>`;
+  }).join("")}`;
+}
+
+function updStatus(id,s){
+  const o=orders.find(x=>x.id===id);
+  if(o){o.status=s;renderDash();}
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────────
+function renderAdmin(){
+  const fonds=clients.filter(c=>c.fondateur).length;
+  const cats=["Légumes","Fruits","Herbes"];
+  document.getElementById("p-admin").innerHTML=`
+  <div class="bebas f36" style="line-height:1;margin-bottom:4px">Administration</div>
+  <p class="f13 gray mb18">Gérez vos clients et votre catalogue.</p>
+  <div style="display:flex;gap:6px;background:#F9FAFB;padding:4px;border-radius:100px;width:fit-content;margin-bottom:20px">
+    <div onclick="adminTab='clients';renderAdmin()" style="padding:8px 16px;border-radius:100px;cursor:pointer;background:${adminTab==="clients"?"var(--dk)":"transparent"};color:${adminTab==="clients"?"#fff":"var(--gy)"};font-weight:600;font-size:13px;white-space:nowrap">👥 Clients (${clients.length})</div>
+    <div onclick="adminTab='catalogue';renderAdmin()" style="padding:8px 16px;border-radius:100px;cursor:pointer;background:${adminTab==="catalogue"?"var(--dk)":"transparent"};color:${adminTab==="catalogue"?"#fff":"var(--gy)"};font-weight:600;font-size:13px;white-space:nowrap">🥦 Catalogue (${catalogue.length})</div>
+  </div>
+
+  ${adminTab==="clients"?`
+    <div class="flex gap10 mb12">
+      <span class="badge bg">⭐ ${fonds} Fondateurs</span>
+      <div style="flex:1"></div>
+      <button class="btn btn-w" style="width:auto;padding:7px 14px;font-size:12px" onclick="openClientForm(null)">+ Ajouter</button>
+    </div>
+    ${clients.map(c=>`
+    <div class="row" style="opacity:${c.actif?1:.5}">
+      <div style="flex:1;min-width:0">
+        <div class="flex" style="gap:6px;flex-wrap:wrap">
+          <span class="bold f13">${c.name}</span>
+          ${c.fondateur?`<span class="badge bg tag">⭐</span>`:""}
+          ${!c.actif?`<span class="badge bx tag">Inactif</span>`:""}
+        </div>
+        <div class="f12 gray">${c.contact}</div>
+      </div>
+      <div class="flex" style="gap:6px">
+        <button class="tog ${c.actif?"on":"off"}" onclick="toggleClient(${c.id})"></button>
+        <button class="btn btn-w" style="width:auto;padding:6px 10px;font-size:12px" onclick="openClientForm(${c.id})">✏️</button>
+        <button style="background:transparent;border:1.5px solid var(--rp);padding:7px 10px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;color:var(--rd)" onclick="delClient(${c.id})">🗑️</button>
+      </div>
+    </div>`).join("")}
+  `:`
+    <div class="flex gap10 mb12">
+      <div class="flex" style="gap:5px;flex-wrap:wrap">${cats.map(c=>{const n=catalogue.filter(p=>p.c===c&&p.a).length;return n>0?`<span class="badge bx">${c} (${n})</span>`:""}).join("")}</div>
+      <div style="flex:1"></div>
+      <button class="btn btn-w" style="width:auto;padding:7px 14px;font-size:12px" onclick="openProdForm(null)">+ Ajouter</button>
+    </div>
+    ${catalogue.map(p=>`
+    <div class="row" style="opacity:${p.a?1:.5}">
+      <span style="font-size:20px;flex-shrink:0">${p.e}</span>
+      <div style="flex:1;min-width:0">
+        <div class="flex" style="gap:5px;flex-wrap:wrap">
+          <span class="bold f13">${p.n}</span>
+          <span class="badge bx tag">${p.c}</span>
+          ${!p.a?`<span class="badge br tag">Masqué</span>`:""}
+        </div>
+        <div class="f12 gray"><span class="mono">${p.p.toFixed(2)}€</span> / ${p.u}</div>
+      </div>
+      <div class="flex" style="gap:6px">
+        <button class="tog ${p.a?"on":"off"}" onclick="toggleProd(${p.id})"></button>
+        <button class="btn btn-w" style="width:auto;padding:6px 10px;font-size:12px" onclick="openProdForm(${p.id})">✏️</button>
+        <button style="background:transparent;border:1.5px solid var(--rp);padding:7px 10px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;color:var(--rd)" onclick="delProd(${p.id})">🗑️</button>
+      </div>
+    </div>`).join("")}
+  `}`;
+}
+
+function toggleClient(id){const c=clients.find(x=>x.id===id);if(c)c.actif=!c.actif;renderAdmin();}
+function delClient(id){if(confirm("Supprimer ce client ?"))clients=clients.filter(c=>c.id!==id);renderAdmin();showToast("🗑️ Supprimé.");}
+function toggleProd(id){const p=catalogue.find(x=>x.id===id);if(p)p.a=!p.a;renderAdmin();}
+function delProd(id){if(confirm("Supprimer ce produit ?"))catalogue=catalogue.filter(p=>p.id!==id);renderAdmin();showToast("🗑️ Supprimé.");}
+
+const EMOJIS=["🥦","🍅","🥕","🧅","🥬","🫑","🍋","🍓","🍇","🍊","🌿","🌱","🥝","🍑","🥒","🍆","🧄","🍄","🫐","🍒","🍎","🍐","🥑","🍌","🍉","🍈","🍍","🥭","🥔","🌽","🫛"];
+const UNITS=["kg","pièce","botte","barq.","litre","sachet","tête","épi"];
+const CATS=["Légumes","Fruits","Herbes"];
+
+function openClientForm(id){
+  const c=id?clients.find(x=>x.id===id):null;
+  openModal(`
+    <div class="bebas f32 mb16">${c?"Modifier":"Nouveau client"}</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label>Nom du restaurant *</label><input class="inp" id="cf-name" placeholder="Ex : Le Petit Zinc" value="${c?c.name:""}"/></div>
+      <div><label>Contact</label><input class="inp" id="cf-contact" placeholder="Ex : Jean D." value="${c?c.contact:""}"/></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 13px;background:var(--gp);border-radius:10px">
+        <div class="bold f13">⭐ Membre Fondateur (-5%)</div>
+        <button class="tog ${c?.fondateur?"on":"off"}" id="cf-fond" onclick="this.classList.toggle('on');this.classList.toggle('off')"></button>
+      </div>
+      <div class="flex gap10" style="margin-top:4px">
+        <button class="btn btn-w grow" onclick="closeModal()">Annuler</button>
+        <button class="btn btn-g grow" onclick="saveClient(${id||"null"})">${c?"Enregistrer":"Ajouter"}</button>
+      </div>
+    </div>`);
+}
+
+function saveClient(id){
+  const name=document.getElementById("cf-name").value.trim();
+  if(!name)return;
+  const fond=document.getElementById("cf-fond").classList.contains("on");
+  const contact=document.getElementById("cf-contact").value.trim();
+  if(id){const c=clients.find(x=>x.id===id);c.name=name;c.contact=contact;c.fondateur=fond;showToast("✅ Mis à jour !");}
+  else{clients.push({id:Date.now(),name,contact,fondateur:fond,actif:true});showToast("✅ Client ajouté !");}
+  closeModal();renderAdmin();
+}
+
+function openProdForm(id){
+  const p=id?catalogue.find(x=>x.id===id):null;
+  let selEmoji=p?p.e:"🥦";
+  openModal(`
+    <div class="bebas f32 mb16">${p?"Modifier":"Nouveau produit"}</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label>Emoji</label>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;padding:8px;background:#F9FAFB;border-radius:10px;border:1.5px solid var(--bd);max-height:88px;overflow-y:auto">
+          ${EMOJIS.map(e=>`<span onclick="selEmoji(this,'${e}')" data-e="${e}" style="font-size:19px;cursor:pointer;padding:2px 3px;border-radius:6px;background:${p?.e===e?"var(--gp)":"transparent"};border:${p?.e===e?"1.5px solid var(--g)":"1.5px solid transparent"}">${e}</span>`).join("")}
+        </div>
+        <input type="hidden" id="pf-emoji" value="${p?p.e:"🥦"}"/>
+      </div>
+      <div><label>Nom *</label><input class="inp" id="pf-name" placeholder="Ex : Courgettes" value="${p?p.n:""}"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div><label>Prix (€) *</label><input class="inp" id="pf-price" type="number" placeholder="2.50" min="0" step="0.1" value="${p?p.p:""}"/></div>
+        <div><label>Unité</label><select class="sel" id="pf-unit">${UNITS.map(u=>`<option ${p?.u===u?"selected":""}>${u}</option>`).join("")}</select></div>
+        <div><label>Catégorie</label><select class="sel" id="pf-cat">${CATS.map(c=>`<option ${p?.c===c?"selected":""}>${c}</option>`).join("")}</select></div>
+      </div>
+      <div class="flex gap10" style="margin-top:4px">
+        <button class="btn btn-w grow" onclick="closeModal()">Annuler</button>
+        <button class="btn btn-g grow" onclick="saveProd(${id||"null"})">${p?"Enregistrer":"Ajouter"}</button>
+      </div>
+    </div>`);
+}
+
+function selEmoji(el,e){
+  document.querySelectorAll("[data-e]").forEach(x=>{x.style.background="transparent";x.style.border="1.5px solid transparent";});
+  el.style.background="var(--gp)";el.style.border="1.5px solid var(--g)";
+  document.getElementById("pf-emoji").value=e;
+}
+
+function saveProd(id){
+  const name=document.getElementById("pf-name").value.trim();
+  const price=parseFloat(document.getElementById("pf-price").value);
+  if(!name||!price)return;
+  const emoji=document.getElementById("pf-emoji").value;
+  const unit=document.getElementById("pf-unit").value;
+  const cat=document.getElementById("pf-cat").value;
+  if(id){const p=catalogue.find(x=>x.id===id);p.n=name;p.p=price;p.e=emoji;p.u=unit;p.c=cat;showToast("✅ Mis à jour !");}
+  else{catalogue.push({id:Date.now(),e:emoji,n:name,u:unit,p:price,c:cat,a:true});showToast("✅ Produit ajouté !");}
+  closeModal();renderAdmin();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderCmd();
+</script>
+
+</body>
+</html>
